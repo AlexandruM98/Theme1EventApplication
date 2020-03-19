@@ -10,6 +10,10 @@ public class Utilizator {
 		this.prenume = prenume;
 	}
 
+	public Utilizator() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getNume() {
 		return nume;
 	}
@@ -32,6 +36,9 @@ public class Utilizator {
 
 	public void setTip(String tip) {
 		this.tip = tip;
+	}
+	public String toString() {
+		return this.nume + " " + this.prenume + " " + this.tip ;
 	}
 	
 

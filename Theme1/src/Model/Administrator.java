@@ -6,5 +6,9 @@ public class Administrator extends Client {
 		super(nume, prenume);
 		this.setTip("Administrator");
 	}
+	
+	public String toString() {
+		return super.toString();
+	}
 
 }

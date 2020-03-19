@@ -18,11 +18,13 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 public class ClientFrame extends JFrame {	
-
+	private Controller ctrl = new Controller();
+	
 	private JPanel contentPane;	
 	private JButton backBtn = new JButton("Back");
 	
 	public ClientFrame() {
+		setTitle("ClientPage");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 770, 554);
 		contentPane = new JPanel();
@@ -46,12 +48,16 @@ public class ClientFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				Controller.backToWelcomeWindow();
+				ctrl.backToWelcomeWindow();
 				
 				
 			}
 			
 			
 		});
+	}
+	
+	public void setController(Controller c) {
+		this.ctrl = c;
 	}
 }

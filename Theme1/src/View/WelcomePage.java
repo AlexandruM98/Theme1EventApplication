@@ -18,7 +18,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 public class WelcomePage extends JFrame {
-
+	private Controller ctrl = new Controller();
+	
 	private JPanel contentPane;	
 	
 	private JButton clientBtn = new JButton("Client");
@@ -62,7 +63,7 @@ public class WelcomePage extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				Controller.openClientWindow();
+				ctrl.openClientWindow();
 				
 			}
 			
@@ -73,15 +74,28 @@ public class WelcomePage extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				Controller.openLogInWindow();
+				ctrl.openLogInWindow("coord");
 				
 			}
 			
 			
 		});
+		
+		admBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				ctrl.openLogInWindow("adm");
+				
+			}
+			
+		});
 	}
 	
 	
-	
+	public void setController(Controller c) {
+		this.ctrl = c;
+	}
 	
 }

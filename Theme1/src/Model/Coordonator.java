@@ -6,5 +6,9 @@ public class Coordonator extends Client {
 		super(nume, prenume);
 		this.setTip("Coordonator");
 	}
+	
+	public String toString() {
+		return super.toString();
+	}
 
 }

@@ -16,12 +16,16 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 
 public class LogInFrame extends JFrame {
+	
+	private Controller ctrl = new Controller();
 
 	private JPanel contentPane;
 	private JTextField usrTextField;
 	private JTextField passTextField;
-	private JButton btnLogare = new JButton("Logare ");
+	private JButton btnSalvareCont= new JButton("Salvare ");
 	private JButton btnBack = new JButton("Back");
+	private JButton btnStergere = new JButton("Stergere");
+	private JButton btnLogare = new JButton("Logare");
 	
 	public LogInFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,13 +64,23 @@ public class LogInFrame extends JFrame {
 		passTextField.setColumns(10);
 		
 		
-		btnLogare.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 26));
-		btnLogare.setBounds(262, 423, 210, 61);
-		contentPane.add(btnLogare);
+		btnSalvareCont.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 26));
+		btnSalvareCont.setBounds(262, 423, 210, 61);
+		contentPane.add(btnSalvareCont);
 		
 		btnBack.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 20));
 		btnBack.setBounds(600, 491, 124, 55);
 		contentPane.add(btnBack);
+		
+		
+		btnStergere.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 26));
+		btnStergere.setBounds(28, 423, 183, 61);
+		contentPane.add(btnStergere);
+		
+		
+		btnLogare.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 26));
+		btnLogare.setBounds(511, 423, 183, 61);
+		contentPane.add(btnLogare);
 		setVisible(true);
 		
 		btnBack.addActionListener(new ActionListener() {
@@ -74,12 +88,43 @@ public class LogInFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				Controller.backToWelcomeWindow();
+				ctrl.backToWelcomeWindow();
 				
 				
 			}
 			
 			
 		});
-	}
+		
+		btnSalvareCont.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ctrl.salvareContNou(usrTextField.getText().toString(),passTextField.getText().toString());
+				
+			}
+			
+			
+		});
+		
+		btnStergere.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ctrl.stergereCont(usrTextField.getText().toString(),passTextField.getText().toString());
+				
+			}
+			
+		});
+		
+		btnLogare.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ctrl.logareCont(usrTextField.getText().toString(),passTextField.getText().toString());
+				
+			}
+			
+		});
+	}	
 }
