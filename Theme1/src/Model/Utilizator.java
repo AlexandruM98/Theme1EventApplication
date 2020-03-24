@@ -14,6 +14,12 @@ public class Utilizator {
 		// TODO Auto-generated constructor stub
 	}
 
+	public Utilizator(String nume, String prenume, String tip) {
+		this.nume = nume;
+		this.prenume = prenume;
+		this.tip = tip;
+	}
+
 	public String getNume() {
 		return nume;
 	}

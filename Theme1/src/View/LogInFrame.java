@@ -14,20 +14,23 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JTextArea;
 
 public class LogInFrame extends JFrame {
 	
-	private Controller ctrl = new Controller();
+	private Controller ctrl;
 
 	private JPanel contentPane;
 	private JTextField usrTextField;
 	private JTextField passTextField;
+	private JTextArea infoArea;
 	private JButton btnSalvareCont= new JButton("Salvare ");
 	private JButton btnBack = new JButton("Back");
 	private JButton btnStergere = new JButton("Stergere");
 	private JButton btnLogare = new JButton("Logare");
 	
-	public LogInFrame() {
+	public LogInFrame(Controller ctrl) {
+		this.ctrl = ctrl;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 748, 593);
 		contentPane = new JPanel();
@@ -81,12 +84,21 @@ public class LogInFrame extends JFrame {
 		btnLogare.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 26));
 		btnLogare.setBounds(511, 423, 183, 61);
 		contentPane.add(btnLogare);
+		
+		infoArea = new JTextArea();
+		infoArea.setBounds(518, 165, 176, 196);
+		contentPane.add(infoArea);
+		
+		JLabel lblInfoLogIn = new JLabel("Info Log in");
+		lblInfoLogIn.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblInfoLogIn.setBounds(557, 132, 106, 23);
+		contentPane.add(lblInfoLogIn);
 		setVisible(true);
 		
 		btnBack.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {	
 				setVisible(false);
 				ctrl.backToWelcomeWindow();
 				
@@ -126,5 +138,33 @@ public class LogInFrame extends JFrame {
 			}
 			
 		});
+	}
+
+	public JButton getBtnSalvareCont() {
+		return btnSalvareCont;
+	}
+
+	public void setBtnSalvareCont(JButton btnSalvareCont) {
+		this.btnSalvareCont = btnSalvareCont;
+	}
+
+	public JButton getBtnStergere() {
+		return btnStergere;
+	}
+
+	public void setBtnStergere(JButton btnStergere) {
+		this.btnStergere = btnStergere;
+	}
+
+	public JButton getBtnLogare() {
+		return btnLogare;
+	}
+
+	public void setBtnLogare(JButton btnLogare) {
+		this.btnLogare = btnLogare;
 	}	
+	
+	public void setInfoArea(String info) {
+		this.infoArea.setText(info);
+	}
 }

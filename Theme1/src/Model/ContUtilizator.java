@@ -1,11 +1,13 @@
 package Model;
 
 public class ContUtilizator {
+	private static int id = 0;
 	private Utilizator utilizator;
 	private String username;
 	private String password;
 	
 	public ContUtilizator(Utilizator ut, String username, String password) {
+		++this.id;
 		this.utilizator = ut;
 		this.username = username;
 		this.password = password;
@@ -36,8 +38,17 @@ public class ContUtilizator {
 		this.password = password;
 	}
 	
+	
+	public static int getId() {
+		return id;
+	}
+
+	public static void setId(int id) {
+		ContUtilizator.id = id;
+	}
+
 	public String toString() {
-		return utilizator.toString() + " " + this.username + " " + this.password;
+		return this.id + " " + utilizator.toString() + " " + this.username + " " + this.password;
 	}
 
 	

@@ -6,9 +6,9 @@ public class UtilizatorFactory {
 		
 		if(tip.equals("Client"))
 			return new Client(x.getNume(),x.getPrenume());
-		if(tip.equals("coord"))
+		if(tip.equals("Coord"))
 			return new Coordonator(x.getNume(),x.getPrenume());
-		if(tip.equals("adm"))
+		if(tip.equals("Adm"))
 			return new Administrator(x.getNume(),x.getPrenume());
 		return null;
 		
