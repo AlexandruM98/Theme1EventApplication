@@ -1,6 +1,6 @@
 package Model;
 
-public class Administrator extends Client {
+public class Administrator extends Client implements java.io.Serializable {
 
 	public Administrator(String nume, String prenume) {
 		super(nume, prenume);

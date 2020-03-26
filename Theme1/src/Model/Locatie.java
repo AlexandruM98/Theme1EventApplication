@@ -1,12 +1,16 @@
 package Model;
 
-public class Locatie {
+public class Locatie implements java.io.Serializable {
 	private String oras;
 	private String nume;
 	
 	public Locatie(String oras, String nume) {
 		this.oras = oras;
 		this.nume = nume;
+	}
+
+	public Locatie() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public String getOras() {

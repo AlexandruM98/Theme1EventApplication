@@ -1,17 +1,20 @@
 package Model;
 
-public class ContUtilizator {
-	private static int id = 0;
+public class ContUtilizator implements java.io.Serializable {
+	private int id = 0;
 	private Utilizator utilizator;
 	private String username;
 	private String password;
 	
-	public ContUtilizator(Utilizator ut, String username, String password) {
-		++this.id;
+	public ContUtilizator(Utilizator ut, String username, String password) {		
 		this.utilizator = ut;
 		this.username = username;
 		this.password = password;
 		
+	}
+
+	public ContUtilizator() {
+		this.utilizator = new Utilizator();
 	}
 
 	public Utilizator getUtilizator() {
@@ -39,18 +42,41 @@ public class ContUtilizator {
 	}
 	
 	
-	public static int getId() {
+	public  int getId() {
 		return id;
 	}
 
-	public static void setId(int id) {
-		ContUtilizator.id = id;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String toString() {
 		return this.id + " " + utilizator.toString() + " " + this.username + " " + this.password;
 	}
+	
+	public void setNume(String nume) {
+		this.utilizator.setNume(nume);
+	}
 
+	public void setPrenume(String prenume) {
+		this.utilizator.setPrenume(prenume);
+	}
+	
+	public void setTip(String tip) {
+		this.utilizator.setTip(tip);
+	}
+	
+	public String getNume() {
+		return this.utilizator.getNume();
+	}
+	public String getPrenume() {
+		return this.utilizator.getPrenume();
+	}
+	
+	public String getTip() {
+		return this.utilizator.getTip();
+	}
+	
 	
 	
 }

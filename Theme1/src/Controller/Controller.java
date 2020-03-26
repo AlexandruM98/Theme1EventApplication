@@ -1,5 +1,6 @@
 package Controller;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -11,7 +12,8 @@ public class Controller {
 	private static WelcomeFrame welcomeFrame;	
 	private static LogInFrame logInFrame;	
 	private static EventInfoFrame infoFrame;
-	private static ReservationFrame reservationFrame;
+	private static BarChartScop barChart;
+	private static PieChartPersoane pieChart;
 	private static CrudEventFrame crudEventFrame;
 	private static TabelFrame tabelFrame;
 	private static CrudCoordFrame crudCoordFrame;
@@ -80,8 +82,7 @@ public class Controller {
 			if(action.equals("openFilter")) {
 				if(((PersistentaContUtilizator)persistenta).logareCont(usr,pass,"Coordonator")) {
 					logInFrame.setVisible(false);
-					filtrare();
-					crudEventFrame.setInfoArea("V-ati logat cu succes ca si coordonator");
+					filtrare();					
 				}
 				else {
 					logInFrame.setInfoArea("Parola/contul gresite sau nu aveti acces !");
@@ -105,8 +106,16 @@ public class Controller {
 		
 	}
 	
-	public void makeReservation() {
-		reservationFrame = new ReservationFrame(this);
+	public void showCharts() {
+		persistenta = persistentaFact.persistentaFactory("evenimente.txt");
+		ArrayList<Eveniment> evenimente = ((PersistentaEveniment)persistenta).showAll();
+		StatisticaEvenimente stev = new StatisticaEvenimente.Builder()
+																	.setEvenimente(evenimente)
+																	.build();
+		Map<String,Integer> mapi = stev.returnScopMap();
+		barChart = new BarChartScop(mapi);
+		mapi = stev.returnScopMap();
+		pieChart = new PieChartPersoane(mapi);
 		
 	}
 	public void openEventCrudFrame() {
@@ -126,7 +135,7 @@ public class Controller {
 	public void adaugaCoordonator(String nume, String prenume, String user, String pass) {
 		persistenta = persistentaFact.persistentaFactory("utilizatori.txt");
 		if(((PersistentaContUtilizator)persistenta).salvareCont(new ContUtilizator(new Utilizator(nume,prenume,"Coordonator"),user,pass))) {
-			crudCoordFrame.setInfoArea("Contul a fost adaugat cu succes cu id-ul " + ContUtilizator.getId());
+			crudCoordFrame.setInfoArea("Contul a fost adaugat cu succes!");
 		}
 		else
 			crudCoordFrame.setInfoArea("Contul nu a fost adaugat !");		
@@ -155,7 +164,7 @@ public class Controller {
 	
 	public void gasesteCoordonator(int id) {
 		persistenta = persistentaFact.persistentaFactory("utilizatori.txt");
-		String coord;
+		ContUtilizator coord;
 		if((coord = ((PersistentaContUtilizator)persistenta).cautareCoordonator(id)) != null) {
 			crudCoordFrame.setInfoArea("Contul a fost gasit cu succes !" + coord);
 		}
@@ -210,9 +219,9 @@ public class Controller {
 	
 	public void cautaEveniment(int id) {
 		persistenta = persistentaFact.persistentaFactory("evenimente.txt");
-		String event = ((PersistentaEveniment)persistenta).cautareEveniment(id);
+		Eveniment event = ((PersistentaEveniment)persistenta).cautareEveniment(id);
 		if(event != null)
-			crudEventFrame.setInfoArea("Evenimentul a fost gasit : " + event);
+			crudEventFrame.setInfoArea("Evenimentul a fost gasit : " + event.toString());
 		else
 			crudEventFrame.setInfoArea("Evenimentul nu a fost gasit !");
 		
@@ -224,10 +233,14 @@ public class Controller {
 		if(welcomeFrame.getCheckBoxLocatie().isSelected()) {
 			evenimente = ((PersistentaEveniment)persistenta).filtreazaLocatie(welcomeFrame.getInputText());			
 		}
+		else
 		if(welcomeFrame.getCheckBoxPers().isSelected())
 			evenimente = ((PersistentaEveniment)persistenta).filtreazaPersoane(welcomeFrame.getInputText());
+		else
 		if(welcomeFrame.getCheckBoxScop().isSelected())
 			evenimente = ((PersistentaEveniment)persistenta).filtreazaScop(welcomeFrame.getInputText());
+		else
+			evenimente = ((PersistentaEveniment)persistenta).showAll();
 		//creem tabelul
 		String[] coloane = {"Tip","Oras","Nume","Data","Persoane"};
 		String[][] date = new String[evenimente.size()][coloane.length];

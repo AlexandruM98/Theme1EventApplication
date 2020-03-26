@@ -1,16 +1,23 @@
 package Model;
 
 import java.beans.XMLEncoder;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,70 +29,71 @@ public class PersistentaEveniment extends Persistenta {
 		
 	}
 	
-	
-	public boolean salvareEveniment(Eveniment event) {		
+	public boolean salvareEveniment(Eveniment event) {
+		 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			File tempFile = new File("myTempFile.txt");
-			BufferedWriter tempWriter = new BufferedWriter(new FileWriter(tempFile));
-			String line;
-			int lastId = 0;
-			while((line = reader.readLine()) != null) {
-				String[] tokens = line.split(" ");
-				lastId = Integer.parseInt(tokens[0]);
-				tempWriter.write(line);
-				tempWriter.newLine();
+			File file = new File(fisierPersistenta.getName());
+			if(file.length() == 0) {        //daca fisierul este gol scriem evenimentul
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            ArrayList<Eveniment> evenimente = new ArrayList<Eveniment>();
+	            event.setIdEvent(1);
+	            evenimente.add(event);
+	            out.writeObject(evenimente);
+	            out.close(); 
+	            file2.close();
 				
+			}	
+			else {       //altfel deserealizam,adaugam evenimentul apoi serializam cu noul eveniment
+				FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+				ObjectInputStream in = new ObjectInputStream(file3);
+				ArrayList<Eveniment> evenimente = (ArrayList<Eveniment>)in.readObject();
+				event.setIdEvent(evenimente.get(evenimente.size()-1).getIdEvent() + 1);
+				evenimente.add(event);			
+				in.close();
+				file3.close();
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            out.writeObject(evenimente);
+	            out.close(); 
+	            file2.close();				
 			}
 			
-			event.setId(lastId+1);
-			reader.close();
-			tempWriter.write(event.toString());
-			tempWriter.newLine();
-			tempWriter.close();
 			
-			fisierPersistenta.delete();
-			tempFile.renameTo(fisierPersistenta);
-			return true;
-		}
-		catch (Exception e) {			
+			
+		} catch (Exception e) {
+			
 			e.printStackTrace();
-			return false;
-		}
-		
-		
+		} 
+		return true;
+         
 	}
 	
 	
 	public boolean stergereEveniment(String tip,String oras, String nume, String data,int nrPers) {
 		
 		boolean eventExista = false;
+		ArrayList<Eveniment> evenimenteSterse = new ArrayList<Eveniment>();
 		try {			
-			File tempFile = new File("myTempFile.txt");
-			BufferedWriter writerTemp = new BufferedWriter(new FileWriter(tempFile));
-			String toCheck;		
-			String deSters = tip + " " + oras + " "+ nume +" "+data + " "+nrPers+" ";
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			while((toCheck = reader.readLine()) != null) {				
-				String[] tokens = toCheck.split(" ");
-				String toCheckFaraId = "";
-				for(int i = 1; i < tokens.length;i++) {
-					toCheckFaraId += tokens[i] + " ";
-				}
-				System.out.println("Voi verifica pe "+ toCheckFaraId + " cu " + deSters);
-				if(toCheckFaraId.matches(deSters)) {
-					eventExista = true;					
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();			
+			for(Eveniment x : evenimenteAux) {
+				if(x.getTip().matches(tip) && x.getLocatie().toString().matches(oras + " "+nume) && x.getPerioada().matches(data) && x.getNrPersoane() ==nrPers) {
+					eventExista = true;
 					continue;
-				}					
+				}
 				else
-					writerTemp.write(toCheck);
-				writerTemp.write("\n");
-				 	
-			}	
-			reader.close();
-			writerTemp.close();
-			fisierPersistenta.delete();
-			tempFile.renameTo(fisierPersistenta);
+					evenimenteSterse.add(x);
+			}
+			
+			FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+            ObjectOutputStream out = new ObjectOutputStream(file2);
+            out.writeObject(evenimenteSterse);
+            out.close(); 
+            file2.close();			
+			
+			
 			 
 		}
 		catch(Exception e) {
@@ -95,20 +103,17 @@ public class PersistentaEveniment extends Persistenta {
 		return eventExista;
 	}
 	
-	public String cautareEveniment(int id) {
-		
+	public Eveniment cautareEveniment(int id) {		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String line;
-			while((line = reader.readLine()) != null) {
-				String[] tokens = line.split(" ");
-				int idToCheck = Integer.parseInt(tokens[0]);
-				if(idToCheck == id) {
-					reader.close();
-					return line;	
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();
+			
+			for(Eveniment x : evenimenteAux) {
+				if(x.getIdEvent() == id) {
+					return x;
 				}
 			}
-			reader.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,59 +122,58 @@ public class PersistentaEveniment extends Persistenta {
 	}
 	
 	public boolean actualizareEveniment(int id, String tip,String oras, String nume, String data,int nrPers) {
-		String info = cautareEveniment(id);
-		if(info != null){			
-			String newEvent = "";
-			newEvent = newEvent + id + " ";
-			String[] tokens = info.split(" ");			
-			if(tip.matches(tokens[1]) || tip.matches(""))
-				newEvent = newEvent + tokens[1] + " ";				
-			else
-				newEvent = newEvent + tip + " ";
-				
-			if(oras.matches(tokens[2]) || oras.matches(""))
-				newEvent = newEvent + tokens[2] + " ";				
-			else
-				newEvent = newEvent + oras + " ";
-				
-			if(nume.matches(tokens[3]) || nume.matches(""))
-				newEvent = newEvent + tokens[3] + " ";				
-			else
-				newEvent = newEvent + nume + " ";				
-			if(data.matches(tokens[4]) || data.matches(""))
-				newEvent = newEvent + tokens[4] + " ";				
-			else
-				newEvent = newEvent + data + " ";
-				
-			if((nrPers == Integer.parseInt(tokens[5])) || nrPers == -1)
-				newEvent = newEvent + tokens[5] + " ";				
-			else
-				newEvent = newEvent + nrPers + " ";
-				
-			//ce mai ramane de facut e de a inlocui linia din fisier cu noua linie
+		Eveniment event = cautareEveniment(id);		
+		if(event != null){		
+			String tipp = event.getTip();
+			String orass = event.getLocatie().getOras();
+			String numeR = event.getLocatie().getNume();
+			String dataa = event.getPerioada();
+			int nrPerss = event.getNrPersoane();
 			
-			try {
+			Eveniment newEvent = new Eveniment();
+			newEvent.setId(id);			
+			if(tip.matches(tipp) || tip.matches(""))
+				newEvent.setTip(tipp);				
+			else
+				newEvent.setTip(tip);	
 				
-				File tempFile = new File("myTempFile.txt");
-				BufferedWriter writerTemp = new BufferedWriter(new FileWriter(tempFile));	
-				BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));				
-				String toCheck;
+			if(oras.matches(orass) || oras.matches(""))
+				newEvent.setOras(orass);				
+			else
+				newEvent.setOras(oras);	
 				
-				while((toCheck = reader.readLine()) != null) {
-					String[] tokens2 = toCheck.split(" ");
-					if(Integer.parseInt(tokens2[0]) == id) { //daca suntem la eventul cu id ce l-am actualizat
-						writerTemp.write(newEvent); //scriem in noul fisier ce newEvent 
-						
-					}
+			if(nume.matches(numeR) || nume.matches(""))
+				newEvent.setNumeR(numeR);			
+			else
+				newEvent.setNumeR(nume);					
+			if(data.matches(dataa) || data.matches(""))
+				newEvent.setPerioada(dataa);				
+			else
+				newEvent.setPerioada(data);
+				
+			if(nrPers == nrPerss || nrPers == -1)
+				newEvent.setNrPersoane(nrPerss);				
+			else
+				newEvent.setNrPersoane(nrPers);
+				
+			ArrayList<Eveniment> evenimenteModificate = new ArrayList<Eveniment>();
+			
+			try {				
+				FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+				ObjectInputStream in = new ObjectInputStream(file3);
+				ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();
+				for(Eveniment x : evenimenteAux) {
+					if(x.getIdEvent()==id)
+						evenimenteModificate.add(newEvent);
 					else
-						writerTemp.write(toCheck);
-					writerTemp.newLine();					
-					
-				}				
-				reader.close();	
-				writerTemp.close();
-				fisierPersistenta.delete();				
-				tempFile.renameTo(fisierPersistenta);
+						evenimenteModificate.add(x);
+						
+				}
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            out.writeObject(evenimenteModificate);
+	            out.close(); 
+	            file2.close();			
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -185,21 +189,17 @@ public class PersistentaEveniment extends Persistenta {
 			return false;
 	}
 	
-	public ArrayList<Eveniment> filtreazaLocatie(String lo){
-		ArrayList<Eveniment> evenimente = new ArrayList<Eveniment>();
-		String[] locc = lo.split(" ");
-		Locatie locatie = new Locatie(locc[0],locc[1]);
+	public ArrayList<Eveniment> filtreazaLocatie(String locatie){
+		ArrayList<Eveniment> evenimente = new ArrayList<Eveniment>();		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String toCheck;
-			while((toCheck = reader.readLine()) != null) {
-				String[] tokens = toCheck.split(" ");
-				if(locatie.getOras().matches(tokens[2]) && locatie.getNume().matches(tokens[3])) {
-					evenimente.add(new Eveniment(Integer.parseInt(tokens[0]),tokens[1],locatie,tokens[4],Integer.parseInt(tokens[5])));					
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();
+			for(Eveniment x : evenimenteAux) {
+				if (x.getLocatie().toString().matches(locatie)) {
+					evenimente.add(x);
 				}
-				
 			}
-			reader.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -217,24 +217,24 @@ public class PersistentaEveniment extends Persistenta {
 		int nrPers = Integer.parseInt(inputText.substring(1));
 		char micMare = inputText.charAt(0);
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String toCheck;
-			while((toCheck = reader.readLine()) != null) {
-				String[] tokens = toCheck.split(" ");
-				int nrCurentPers = Integer.parseInt(tokens[5]);
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();			
+			for(Eveniment x : evenimenteAux) {
+				int nrCurentPers = x.getNrPersoane();
 				if(micMare == '<')
 					if(nrCurentPers < nrPers)
-						evenimente.add(new Eveniment(Integer.parseInt(tokens[0]),tokens[1],new Locatie(tokens[2],tokens[3]),tokens[4],Integer.parseInt(tokens[5])));
+						evenimente.add(x);
 					else
 						;
 				else
 					if(micMare == '>')
 						if(nrCurentPers > nrPers)
-							evenimente.add(new Eveniment(Integer.parseInt(tokens[0]),tokens[1],new Locatie(tokens[2],tokens[3]),tokens[4],Integer.parseInt(tokens[5])));
+							evenimente.add(x);
 						else
 							;
-			}
-			reader.close();
+				
+			}		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -248,23 +248,21 @@ public class PersistentaEveniment extends Persistenta {
 
 
 	public ArrayList<Eveniment> filtreazaScop(String inputText) {
-		ArrayList<Eveniment> evenimente = new ArrayList<Eveniment>();		
+		ArrayList<Eveniment> evenimenteFiltrate = new ArrayList<Eveniment>();		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String toCheck;
-			while((toCheck = reader.readLine()) != null) {
-				String[] tokens = toCheck.split(" ");
-				if(tokens[1].matches(inputText))
-					evenimente.add(new Eveniment(Integer.parseInt(tokens[0]),tokens[1],new Locatie(tokens[2],tokens[3]),tokens[4],Integer.parseInt(tokens[5])));
-			}
-			
-			reader.close();				
-		}
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();
+			for(Eveniment x : evenimenteAux) {
+				if(x.getTip().matches(inputText))
+					evenimenteFiltrate.add(x);
+			}		
+		}	
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return evenimente;
+		return evenimenteFiltrate;
 	}
 
 	
@@ -329,12 +327,7 @@ public class PersistentaEveniment extends Persistenta {
 		}catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		
-		
-			
-			
+		}		
 		
 		
 	}
@@ -343,19 +336,38 @@ public class PersistentaEveniment extends Persistenta {
 	private ArrayList<ArrayList<String>> gasesteEvenimente() {
 		ArrayList<ArrayList<String>> evenimente = new ArrayList<ArrayList<String>>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String event;
-			while((event = reader.readLine()) != null) {
-				String[] tokens = event.split(" ");
-				evenimente.add(new ArrayList<String>(Arrays.asList(tokens[0],tokens[1],tokens[2],tokens[3],tokens[4],tokens[5])));
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimenteAux = (ArrayList<Eveniment>)in.readObject();
+			for(Eveniment x : evenimenteAux) {
+				evenimente.add(new ArrayList<String>(Arrays.asList(Integer.toString(x.getIdEvent()),x.getTip().toString(),x.getLocatie().getOras(),x.getLocatie().getNume(),x.getPerioada(),Integer.toString(x.getNrPersoane()))));
+				
 			}
-			reader.close();
+			System.out.println(evenimente);
+			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}		
 		
 		return evenimente;
+	}
+
+	
+
+	public ArrayList<Eveniment> showAll() {
+		
+		try {
+			FileInputStream file3 = new FileInputStream(fisierPersistenta);
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<Eveniment> evenimente = (ArrayList<Eveniment>)in.readObject();
+			return evenimente;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	

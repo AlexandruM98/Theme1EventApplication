@@ -2,21 +2,20 @@ package Model;
 
 import java.util.ArrayList;
 
-public class Eveniment {
+public class Eveniment implements java.io.Serializable  {
 	private int idEvent;
 	private String tip;
 	private Locatie locatie;
 	private String perioada;
 	private String pret;
 	private int nrPersoane;
-	private ArrayList<Serviciu> listaServicii;
 	
 	public Eveniment(String tip, Locatie locatie, String perioada,int nrPersoane) {		
 		this.tip = tip;
 		this.locatie = locatie;
 		this.perioada = perioada;	
 		this.nrPersoane = nrPersoane;
-		this.listaServicii = new ArrayList<Serviciu>();
+		
 	}
 	
 	public Eveniment(int id,String tip, Locatie locatie, String perioada,int nrPersoane) {
@@ -24,16 +23,15 @@ public class Eveniment {
 		this.tip = tip;
 		this.locatie = locatie;
 		this.perioada = perioada;	
-		this.nrPersoane = nrPersoane;
-		this.listaServicii = new ArrayList<Serviciu>();
+		this.nrPersoane = nrPersoane;		
 	}
 	
+	public Eveniment() {
+		this.locatie = new Locatie();
+	}
+
 	public void setId(int id) {
 		idEvent = id;
-	}
-	
-	public int getId() {
-		return idEvent;
 	}
 
 	public String getTip() {
@@ -67,6 +65,12 @@ public class Eveniment {
 	public void setPret(String pret) {
 		this.pret = pret;
 	}
+	public void setOras(String oras) {
+		locatie.setOras(oras);
+	}
+	public void setNumeR(String numeR) {
+		locatie.setANume(numeR);
+	}
 	
 	
 
@@ -76,19 +80,12 @@ public class Eveniment {
 
 	public void setIdEvent(int idEvent) {
 		this.idEvent = idEvent;
-	}
-
-	public ArrayList<Serviciu> getListaServicii() {
-		return listaServicii;
-	}
-
-	public void setListaServicii(ArrayList<Serviciu> listaServicii) {
-		this.listaServicii = listaServicii;
-	}
+	}	
 
 	public int getNrPersoane() {
 		return nrPersoane;
 	}
+	
 
 	public void setNrPersoane(int nrPersoane) {
 		this.nrPersoane = nrPersoane;

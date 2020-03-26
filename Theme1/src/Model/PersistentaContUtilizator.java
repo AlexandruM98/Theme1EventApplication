@@ -3,9 +3,13 @@ package Model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 
@@ -17,27 +21,36 @@ public class PersistentaContUtilizator extends Persistenta {
 	
 	public boolean salvareCont(ContUtilizator cont) {
 		try {			
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			File tempFile = new File("myTempFile.txt");
-			BufferedWriter tempWriter = new BufferedWriter(new FileWriter(tempFile));
-			String line;
-			while((line = reader.readLine()) != null) {
-				String[] token = line.split(" ");
-				if(token[4].matches(cont.getUsername())) {
-					tempWriter.close();
-					reader.close();
-					return false;
+			File file = new File(fisierPersistenta.getName());
+			if(file.length() == 0) {        //daca fisierul este gol scriem evenimentul
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            ArrayList<ContUtilizator> conturi = new ArrayList<ContUtilizator>();
+	            cont.setId(1);
+	            conturi.add(cont);
+	            out.writeObject(conturi);
+	            out.close(); 
+	            file2.close();
+				
+			}	
+			else {       //altfel deserealizam,adaugam evenimentul apoi serializam cu noul eveniment
+				FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+				ObjectInputStream in = new ObjectInputStream(file3);
+				ArrayList<ContUtilizator> conturi = (ArrayList<ContUtilizator>)in.readObject();
+				for(ContUtilizator x: conturi) {
+					if(x.getUsername().equals(cont.getUsername()))
+						return false;
 				}
-				tempWriter.write(line);	
-				tempWriter.newLine();
+				cont.setId(conturi.get(conturi.size()-1).getId() + 1);
+				conturi.add(cont);			
+				in.close();
+				file3.close();
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            out.writeObject(conturi);
+	            out.close(); 
+	            file2.close();				
 			}
-			
-			tempWriter.write(cont.toString());
-			tempWriter.newLine();
-			tempWriter.close();
-			reader.close();
-			fisierPersistenta.delete();
-			tempFile.renameTo(fisierPersistenta);
 			
 			
 		}
@@ -50,31 +63,25 @@ public class PersistentaContUtilizator extends Persistenta {
 
 	public boolean stergereCont(Utilizator user, String usr,String pass) {
 		boolean contExista = false;
+		ArrayList<ContUtilizator> conturiSterse = new ArrayList<ContUtilizator>();
 		try {		
-			String toMatch = user.toString() + " " + usr +" "+pass;
-			System.out.println("Verific pe : "+toMatch);
-			File tempFile = new File("myTempFile.txt");
-			BufferedWriter writerTemp = new BufferedWriter(new FileWriter(tempFile));
-			String line;			
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			while((line = reader.readLine()) != null) {
-				String[] tokens = line.split(" ");
-				String toCheck = tokens[1] + " " + tokens[2] + " " + tokens[3] + " " + tokens[4] + " " + tokens[5];
-				System.out.println(toCheck);
-				if(toCheck.matches(toMatch)) {
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<ContUtilizator> conturi = (ArrayList<ContUtilizator>)in.readObject();			
+			for(ContUtilizator x : conturi) {
+				if(x.getUtilizator().toString().matches(user.toString()) && usr.matches(x.getUsername())) {
 					contExista = true;
-					continue;					
+					continue;
 				}
-					
 				else
-					writerTemp.write(tokens[0] +" "+ toCheck);
-				writerTemp.write("\n");
-				
-			}	
-			reader.close();
-			writerTemp.close();
-			fisierPersistenta.delete();
-			tempFile.renameTo(fisierPersistenta);
+					conturiSterse.add(x);
+			}
+			
+			FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+            ObjectOutputStream out = new ObjectOutputStream(file2);
+            out.writeObject(conturiSterse);
+            out.close(); 
+            file2.close();			
 			 
 		}
 		catch(Exception e) {
@@ -87,20 +94,18 @@ public class PersistentaContUtilizator extends Persistenta {
 	
 	public boolean logareCont(String usr, String pass,String tip) {		
 		try {
-			String toMatch = tip + " " + usr +" "+pass;
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String line;
-			while((line = reader.readLine()) != null) {
-				String[] tokens = line.split(" ");
-				String toCheck = tokens[3] + " " + tokens[4] + " " + tokens[5];
-				if(toCheck.matches(toMatch)) {
-					reader.close();
+			File file = new File(fisierPersistenta.getName());
+			if(file.length() == 0)
+				return false;
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<ContUtilizator> conturi = (ArrayList<ContUtilizator>)in.readObject();		
+			for(ContUtilizator x : conturi) {
+				if(x.getTip().equals(tip)&&x.getPassword().matches(pass)&& usr.matches(x.getUsername())) {
 					return true;
-				}				
-				
+				}
 			}
-			reader.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			
@@ -109,22 +114,16 @@ public class PersistentaContUtilizator extends Persistenta {
 		return false;
 	}
 
-	public String cautareCoordonator(int idd) {		
+	public ContUtilizator cautareCoordonator(int idd) {		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));
-			String line;
-			while((line = reader.readLine()) != null) {
-				String[] tokens = line.split(" ");
-				int idToCheck = Integer.parseInt(tokens[0]);
-				if(idToCheck == idd) {
-					if(tokens[3].equals("Coordonator")) {
-						reader.close();
-						return line;	
-					}
-				}
+			FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+			ObjectInputStream in = new ObjectInputStream(file3);
+			ArrayList<ContUtilizator> conturi = (ArrayList<ContUtilizator>)in.readObject();
+			for(ContUtilizator x : conturi) {
+				if(x.getId() == idd)
+					if(x.getUtilizator().getTip().equals("Coordonator"))
+						return x;
 			}
-			reader.close();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -133,54 +132,52 @@ public class PersistentaContUtilizator extends Persistenta {
 	
 	public boolean actualizareCont(int idd, String nume, String prenume, String usr, String pass) {
 		
-		String info = cautareCoordonator(idd);
-		if(info != null){			
-			String newCoordonator = "";
-			newCoordonator = newCoordonator + idd + " ";
-			String[] tokens = info.split(" ");			
-			if(nume.matches(tokens[1]) || nume.matches(""))
-				newCoordonator = newCoordonator + tokens[1] + " ";				
+		ContUtilizator coord = cautareCoordonator(idd);
+		if(coord != null){			
+			ContUtilizator  coordModificat = new ContUtilizator();
+			
+			coordModificat.setId(idd);	
+			
+			if(nume.matches(coord.getNume()) || nume.matches(""))
+				coordModificat.setNume(coord.getNume());
 			else
-				newCoordonator = newCoordonator + nume + " ";
+				coordModificat.setNume(nume);
+			
 				
-			if(prenume.matches(tokens[2]) || prenume.matches(""))
-				newCoordonator = newCoordonator + tokens[2] + " ";				
+			if(prenume.matches(coord.getPrenume()) || prenume.matches(""))
+				coordModificat.setPrenume(coord.getPrenume());
 			else
-				newCoordonator = newCoordonator + prenume + " ";
-			newCoordonator = newCoordonator + "Coordonator ";
-			if(usr.matches(tokens[4]) || usr.matches(""))
-				newCoordonator = newCoordonator + tokens[4] + " ";				
+				coordModificat.setPrenume(prenume);
+			
+			coordModificat.setTip("Coordonator");
+			if(usr.matches(coord.getUsername()) || usr.matches(""))
+				coordModificat.setUsername(coord.getUsername());			
 			else
-				newCoordonator = newCoordonator + usr + " ";				
-			if(pass.matches(tokens[5]) || pass.matches(""))
-				newCoordonator = newCoordonator + tokens[5] + " ";				
+				coordModificat.setUsername(usr);	
+			
+			if(pass.matches(coord.getPassword()) || pass.matches(""))
+				coordModificat.setPassword(coord.getPassword());			
 			else
-				newCoordonator = newCoordonator + pass + " ";
+				coordModificat.setPassword(pass);
 				
 			//ce mai ramane de facut e de a inlocui linia din fisier cu noua linie
 			
 			try {
-				
-				File tempFile = new File("myTempFile.txt");
-				BufferedWriter writerTemp = new BufferedWriter(new FileWriter(tempFile));	
-				BufferedReader reader = new BufferedReader(new FileReader(fisierPersistenta));				
-				String toCheck;
-				
-				while((toCheck = reader.readLine()) != null) {
-					String[] tokens2 = toCheck.split(" ");
-					if(Integer.parseInt(tokens2[0]) == idd) { //daca suntem la eventul cu id ce l-am actualizat
-						writerTemp.write(newCoordonator); //scriem in noul fisier ce newCoordonator 
-						
-					}
+				ArrayList<ContUtilizator> conturiModificate = new ArrayList<ContUtilizator>();
+				FileInputStream file3 = new FileInputStream(fisierPersistenta); 
+				ObjectInputStream in = new ObjectInputStream(file3);
+				ArrayList<ContUtilizator> conturi = (ArrayList<ContUtilizator>)in.readObject();
+				for(ContUtilizator x : conturi) {
+					if(x.getId()==idd)
+						conturiModificate.add(coordModificat);
 					else
-						writerTemp.write(toCheck);
-					writerTemp.newLine();					
-					
-				}				
-				reader.close();	
-				writerTemp.close();
-				fisierPersistenta.delete();				
-				tempFile.renameTo(fisierPersistenta);
+						conturiModificate.add(x);
+				}
+				FileOutputStream file2 = new FileOutputStream(fisierPersistenta); 
+	            ObjectOutputStream out = new ObjectOutputStream(file2);
+	            out.writeObject(conturiModificate);
+	            out.close(); 
+	            file2.close();	
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

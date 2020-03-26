@@ -1,6 +1,6 @@
 package Model;
 
-public class Utilizator {
+public class Utilizator implements java.io.Serializable {
 	private String nume;
 	private String prenume;
 	private String tip;

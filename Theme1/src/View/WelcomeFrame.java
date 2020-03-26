@@ -25,8 +25,7 @@ public class WelcomeFrame extends JFrame {
 	private JPanel contentPane;	
 	private JButton backBtn = new JButton("Exit");
 	private JButton tipEventBtn = new JButton("Vezi evenimente");
-	private JButton rezEventBtn = new JButton("Vezi statistici");
-	private JButton crudClientiBtn = new JButton("CRUD Clienti");
+	private JButton statisticiBtn= new JButton("Vezi statistici");
 	private JButton crudEventBtn = new JButton("CRUD Evenimente");
 	private JButton filterBtn = new JButton("Filtreaza ");
 	private JButton saveBtn = new JButton("Save");
@@ -67,32 +66,22 @@ public class WelcomeFrame extends JFrame {
 		
 		JLabel lblDacaDoritiSa = new JLabel("Vizualizare statistici");
 		lblDacaDoritiSa.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblDacaDoritiSa.setBounds(10, 203, 551, 49);
+		lblDacaDoritiSa.setBounds(10, 234, 551, 49);
 		contentPane.add(lblDacaDoritiSa);
 		
 		
-		rezEventBtn.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
-		rezEventBtn.setBounds(561, 203, 151, 49);
-		contentPane.add(rezEventBtn);
-		
-		JLabel lblDacaDp = new JLabel("Adaugarea, Citirea, Actualizarea, Stergerea unui Client");
-		lblDacaDp.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblDacaDp.setBounds(10, 291, 528, 19);
-		contentPane.add(lblDacaDp);
-		
-		
-		crudClientiBtn.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
-		crudClientiBtn.setBounds(561, 277, 151, 49);
-		contentPane.add(crudClientiBtn);
+		statisticiBtn.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
+		statisticiBtn.setBounds(561, 235, 151, 49);
+		contentPane.add(statisticiBtn);
 		
 		JLabel lblAdaugareaCitireaActualizarea = new JLabel("Adaugarea, Citirea, Actualizarea, Stergerea unui Eveniment");
 		lblAdaugareaCitireaActualizarea.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAdaugareaCitireaActualizarea.setBounds(10, 374, 510, 13);
+		lblAdaugareaCitireaActualizarea.setBounds(16, 341, 510, 13);
 		contentPane.add(lblAdaugareaCitireaActualizarea);
 		
 		
 		crudEventBtn.setFont(new Font("Lucida Calligraphy", Font.PLAIN, 11));
-		crudEventBtn.setBounds(561, 355, 151, 55);
+		crudEventBtn.setBounds(561, 322, 151, 55);
 		contentPane.add(crudEventBtn);
 		
 		JLabel lblFiltrareEvenimente = new JLabel("Filtrare Evenimente");
@@ -188,12 +177,12 @@ public class WelcomeFrame extends JFrame {
 			
 		});
 		
-		rezEventBtn.addActionListener(new ActionListener() {
+		statisticiBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				ctrl.makeReservation();
+				ctrl.showCharts();
 				
 			}
 			
